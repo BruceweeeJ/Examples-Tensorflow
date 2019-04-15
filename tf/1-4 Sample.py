@@ -11,7 +11,7 @@ y = k*x_data + b
 '''二次代价函数'''
 loss = tf.reduce_mean(tf.square(y_data-y))
 '''梯度下降'''
-optimizer = tf.train.GradientDescentOptimizer(0.155)
+optimizer = tf.train.AdamOptimizer(0.2)
 '''最小化代价函数'''
 train = optimizer.minimize(loss)
 

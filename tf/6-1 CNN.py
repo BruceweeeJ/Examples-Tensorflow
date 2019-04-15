@@ -4,7 +4,7 @@ import numpy as np
 mnist = input_data.read_data_sets('data/MNIST', one_hot=True)
 
 
-batch_size = 100
+batch_size = 128
 n_batch = mnist.train.num_examples//batch_size
 
 
@@ -31,13 +31,13 @@ x_image = tf.reshape(X, [-1, 28, 28, 1])
 
 
 '''初始化第一个卷积层'''
-W_conv1 = weight_init([5,5,1,16])#5*5采样窗口,32个卷积核从1个平面抽取特征
+W_conv1 = weight_init([5,5,1,16])#5*5采样窗口,16个卷积核从1个平面抽取特征
 b_conv1 = bias_init([16])
 h_conv1 = tf.nn.relu(conv2d(x_image,W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
 '''第二个卷积层'''
-W_conv2 = weight_init([5,5,16,32])#5*5采样窗口,64个卷积核从32个平面抽取特征
+W_conv2 = weight_init([5,5,16,32])#5*5采样窗口,32个卷积核从16个平面抽取特征
 b_conv2 = bias_init([32])
 h_conv2 = tf.nn.relu(conv2d(h_pool1,W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
@@ -46,7 +46,7 @@ h_pool2 = max_pool_2x2(h_conv2)
 W_fc1 = weight_init([7*7*32,1024])
 b_fc1 = bias_init([1024])
 h_pool2_flat = tf.reshape(h_pool2,[-1,7*7*32])#平铺维度
-h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat,W_fc1) + b_fc1)
+h_fc1 = tf.nn.sigmoid(tf.matmul(h_pool2_flat,W_fc1) + b_fc1)
 
 keep_prob = tf.placeholder(tf.float32)
 h_fc1_drop = tf.nn.dropout(h_fc1,keep_prob)
@@ -72,9 +72,9 @@ accury = tf.reduce_mean(tf.cast(correct,tf.float32))
 with tf.Session() as sess:
     sess.run(init)
     for epoch in range(21):
-        for batch in range(n_batch):
+        for batch in range(batch_size):
             bx,by = mnist.train.next_batch(batch_size)
-            sess.run(train,feed_dict={X: bx, Y: by, keep_prob: 0.1})
+            sess.run(train,feed_dict={X: bx, Y: by, keep_prob: 0.7})
 
         acc = sess.run(accury, feed_dict={X: mnist.test.images, Y: mnist.test.labels, keep_prob: 1.0})
         print("Iter " + str(epoch) + ",Testing Accuary" + str(acc))

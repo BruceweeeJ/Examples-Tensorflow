@@ -99,16 +99,13 @@ sess.run(tf.global_variables_initializer())
 if not os.path.exists('cgan_out/'):
     os.makedirs('cgan_out/')
 
-i = 0
-num =1
+
 for it in range(10000):
     if it % 10000 == 0:
         Z_sample = sample_Z(16, 100)
         Y_sample = np.zeros(shape=[16, 10])
         Y_sample[:, 5] = 1
         samples = sess.run(G_sample, feed_dict={Z: Z_sample, Y:Y_sample})
-        num+=num
-        print(i)
         fig = plot(samples)
         plt.savefig('cgan_out/{}.png'.format(str(i).zfill(3)), bbox_inches='tight')
         i += 1

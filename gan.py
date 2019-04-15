@@ -105,7 +105,7 @@ G_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_logit_f
 D_solver = tf.train.AdamOptimizer().minimize(D_loss, var_list=theta_D)
 G_solver = tf.train.AdamOptimizer().minimize(G_loss, var_list=theta_G)
 #选择训练的批量大小和随机生成噪声的维度
-mb_size = 128
+mb_size = 256
 Z_dim = 100
 
 #读取数据集MNIST，并放在当前目录data文件夹下MNIST文件夹中，如果该地址没有数据，则下载数据至该文件夹
@@ -122,12 +122,11 @@ if not os.path.exists('out/'):
 
 # 初始化，并开始迭代训练，100W次
 i = 0
-for it in range(50000):
+for it in range(100000):
 
-    # 每2000次输出一张生成器生成的图片
-    if it % 2000 == 0:
+    # 每1000次输出一张生成器生成的图片
+    if it % 1000 == 0:
         samples = sess.run(G_sample, feed_dict={Z: sample_Z(16, Z_dim)})
-
         fig = plot(samples)
         plt.savefig('out/{}.png'.format(str(i).zfill(3)), bbox_inches='tight')
         i += 1
@@ -135,14 +134,12 @@ for it in range(50000):
 
     # next_batch抽取下一个批量的图片，该方法返回一个矩阵，即shape=[mb_size，784]，每一行是一张图片，共批量大小行
     X_mb, _ = mnist.train.next_batch(mb_size)
-
     # 投入数据并根据优化方法迭代一次，计算损失后返回损失值
     _, D_loss_curr = sess.run([D_solver, D_loss], feed_dict={X: X_mb, Z: sample_Z(mb_size, Z_dim)})
     _, G_loss_curr = sess.run([G_solver, G_loss], feed_dict={Z: sample_Z(mb_size, Z_dim)})
 
-    # 每迭代2000次输出迭代数、生成器损失和判别器损失
-    if it % 2000 == 0:
+    # 每迭代1000次输出迭代数、生成器损失和判别器损失
+    if it % 1000 == 0:
         print('Iter: {}'.format(it))
         print('D loss: {:.4}'.format(D_loss_curr))
         print('G_loss: {:.4}'.format(G_loss_curr))
-        print()
